@@ -1,0 +1,50 @@
+<odoo>
+    <record id="view_venue_sales_connection_list" model="ir.ui.view">
+        <field name="name">venue.sales.connection.list</field>
+        <field name="model">venue.sales.connection</field>
+        <field name="arch" type="xml">
+            <list>
+                <field name="name"/>
+                <field name="provider"/>
+                <field name="server_url"/>
+                <field name="active"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_venue_sales_connection_form" model="ir.ui.view">
+        <field name="name">venue.sales.connection.form</field>
+        <field name="model">venue.sales.connection</field>
+        <field name="arch" type="xml">
+            <form>
+                <sheet>
+                    <group>
+                        <field name="name"/>
+                        <field name="provider"/>
+                        <field name="server_url"/>
+                        <field name="login"/>
+                        <field name="password" password="True"/>
+                        <field name="active"/>
+                    </group>
+                    <notebook>
+                        <page string="Заклади">
+                            <field name="location_ids">
+                                <list>
+                                    <field name="name"/>
+                                    <field name="external_id"/>
+                                    <field name="active"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="action_venue_sales_connection" model="ir.actions.act_window">
+        <field name="name">Підключення POS</field>
+        <field name="res_model">venue.sales.connection</field>
+        <field name="view_mode">list,form</field>
+    </record>
+</odoo>

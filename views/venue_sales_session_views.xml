@@ -1,0 +1,126 @@
+<odoo>
+    <record id="view_venue_sales_session_list" model="ir.ui.view">
+        <field name="name">venue.sales.session.list</field>
+        <field name="model">venue.sales.session</field>
+        <field name="arch" type="xml">
+            <list default_order="date_open desc" create="0">
+                <field name="location_id" widget="many2one_avatar" width="190px"/>
+                <field name="date" width="90px"/>
+                <field name="date_open" optional="hide" width="130px"/>
+                <field name="date_close" optional="hide" width="130px"/>
+                <field name="cash_reg_number" string="Каса" optional="show" width="70px"/>
+                <field name="status" widget="badge" optional="show" width="140px"
+                       decoration-success="status == 'ACCEPTED'"
+                       decoration-info="status == 'OPEN'"
+                       decoration-muted="status == 'CLOSED'"
+                       decoration-warning="status == 'UNACCEPTED'"
+                       decoration-danger="status == 'HASWARNINGS'"/>
+                <field name="receipts_count" optional="show" sum="Разом" width="80px"/>
+                <field name="total_sales" optional="show" sum="Разом" width="130px"/>
+                <field name="avg_check" optional="hide" width="120px"/>
+                <field name="sales_cash" optional="show" sum="Разом" width="130px"/>
+                <field name="sales_card" optional="show" sum="Разом" width="130px"/>
+                <field name="cash_diff" optional="hide" sum="Разом" width="130px"/>
+                <field name="currency_id" column_invisible="1"/>
+            </list>
+        </field>
+    </record>
+
+    <record id="view_venue_sales_session_form" model="ir.ui.view">
+        <field name="name">venue.sales.session.form</field>
+        <field name="model">venue.sales.session</field>
+        <field name="arch" type="xml">
+            <form string="Касова зміна" create="0" edit="0">
+                <sheet>
+                    <div class="oe_title">
+                        <h1>Касова зміна № <field name="session_number" class="oe_inline"/></h1>
+                    </div>
+                    <group>
+                        <group>
+                            <field name="location_id"/>
+                            <field name="external_id"/>
+                            <field name="session_number"/>
+                            <field name="fiscal_number"/>
+                            <field name="cash_reg_number"/>
+                        </group>
+                        <group>
+                            <field name="status" widget="badge"
+                                   decoration-success="status == 'ACCEPTED'"
+                                   decoration-info="status == 'OPEN'"
+                                   decoration-muted="status == 'CLOSED'"
+                                   decoration-warning="status == 'UNACCEPTED'"
+                                   decoration-danger="status == 'HASWARNINGS'"/>
+                            <field name="date"/>
+                            <field name="date_open"/>
+                            <field name="date_close"/>
+                            <field name="date_accept"/>
+                        </group>
+                    </group>
+                    <group string="Продажі">
+                        <group>
+                            <field name="receipts_count"/>
+                            <field name="total_sales"/>
+                            <field name="avg_check"/>
+                            <field name="sales_cash"/>
+                            <field name="sales_card"/>
+                            <field name="sales_credit"/>
+                        </group>
+                        <group>
+                            <field name="writeoffs"/>
+                            <field name="pay_in"/>
+                            <field name="pay_out"/>
+                            <field name="cash_diff"/>
+                            <field name="cash_remain"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="view_venue_sales_session_search" model="ir.ui.view">
+        <field name="name">venue.sales.session.search</field>
+        <field name="model">venue.sales.session</field>
+        <field name="arch" type="xml">
+            <search>
+                <field name="location_id"/>
+                <field name="cash_reg_number" string="Каса"/>
+                <field name="status"/>
+                <field name="date"/>
+
+                <filter string="Каса 1001 (фіскальна)" name="filter_reg_1001" domain="[('cash_reg_number', '=', '1001')]"/>
+                <filter string="Каса 100 (адмінська)" name="filter_reg_100" domain="[('cash_reg_number', '=', '100')]"/>
+                <separator/>
+                <filter string="Відкрита" name="filter_status_open" domain="[('status', '=', 'OPEN')]"/>
+                <filter string="Закрита" name="filter_status_closed" domain="[('status', '=', 'CLOSED')]"/>
+                <filter string="Прийнята" name="filter_status_accepted" domain="[('status', '=', 'ACCEPTED')]"/>
+                <filter string="Не прийнята" name="filter_status_unaccepted" domain="[('status', '=', 'UNACCEPTED')]"/>
+                <filter string="Є попередження" name="filter_status_warnings" domain="[('status', '=', 'HASWARNINGS')]"/>
+
+                <group>
+                    <filter string="Заклад" name="groupby_restaurant" context="{'group_by': 'location_id'}"/>
+                    <filter string="Дата" name="groupby_date" context="{'group_by': 'date'}"/>
+                </group>
+            </search>
+        </field>
+    </record>
+
+    <record id="view_venue_sales_session_pivot" model="ir.ui.view">
+        <field name="name">venue.sales.session.pivot</field>
+        <field name="model">venue.sales.session</field>
+        <field name="arch" type="xml">
+            <pivot>
+                <field name="location_id" type="row"/>
+                <field name="date" interval="day" type="col"/>
+                <field name="total_sales" type="measure"/>
+            </pivot>
+        </field>
+    </record>
+
+    <record id="action_venue_sales_session" model="ir.actions.act_window">
+        <field name="name">Касові зміни</field>
+        <field name="res_model">venue.sales.session</field>
+        <field name="view_mode">list,form,pivot</field>
+        <field name="search_view_id" ref="view_venue_sales_session_search"/>
+    </record>
+</odoo>

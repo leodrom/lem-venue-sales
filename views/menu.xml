@@ -1,0 +1,12 @@
+<odoo>
+    <menuitem id="menu_venue_sales_root" name="Продажі закладів" sequence="90"
+              web_icon="lem_venue_sales,static/description/icon.png"
+              groups="base.group_system"/>
+
+    <menuitem id="menu_venue_sales_session" name="Касові зміни" parent="menu_venue_sales_root"
+              action="action_venue_sales_session" sequence="10"/>
+    <menuitem id="menu_venue_sales_location" name="Заклади" parent="menu_venue_sales_root"
+              action="action_venue_sales_location" sequence="20"/>
+    <menuitem id="menu_venue_sales_connection" name="Підключення" parent="menu_venue_sales_root"
+              action="action_venue_sales_connection" sequence="30"/>
+</odoo>

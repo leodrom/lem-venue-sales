@@ -1,0 +1,14 @@
+<odoo>
+    <record id="ir_cron_venue_sales_sync" model="ir.cron">
+        <field name="name">Продажі закладів: авто-синхронізація за розкладом</field>
+        <field name="model_id" ref="model_venue_sales_location"/>
+        <!-- Must be a real user with a real tz (not the tz-less superuser default) —
+             auto_sync_hour is interpreted in this user's local timezone. -->
+        <field name="user_id" ref="base.user_admin"/>
+        <field name="state">code</field>
+        <field name="code">model._cron_auto_sync_restaurants()</field>
+        <field name="interval_number">30</field>
+        <field name="interval_type">minutes</field>
+        <field name="active" eval="True"/>
+    </record>
+</odoo>

@@ -1,0 +1,5 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_venue_sales_connection_system,venue.sales.connection.system,model_venue_sales_connection,base.group_system,1,1,1,1
+access_venue_sales_location_system,venue.sales.location.system,model_venue_sales_location,base.group_system,1,1,1,1
+access_venue_sales_session_system,venue.sales.session.system,model_venue_sales_session,base.group_system,1,1,1,1
+access_venue_sales_sync_wizard_system,venue.sales.sync.wizard.system,model_venue_sales_sync_wizard,base.group_system,1,1,1,1
