@@ -17,6 +17,10 @@
         <field name="model">venue.sales.connection</field>
         <field name="arch" type="xml">
             <form>
+                <header>
+                    <button name="action_test_connection" type="object"
+                            string="Перевірити з'єднання" class="btn-primary" icon="fa-plug"/>
+                </header>
                 <sheet>
                     <group>
                         <field name="name"/>

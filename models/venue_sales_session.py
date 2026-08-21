@@ -22,10 +22,10 @@ class PosCashSession(models.Model):
     _name = 'venue.sales.session'
     _description = 'Касова зміна POS (Z-звіт)'
     _order = 'date_open desc'
-    _sql_constraints = [
-        ('restaurant_external_id_uniq', 'unique(location_id, external_id)',
-         'Цю зміну вже синхронізовано для цього закладу.'),
-    ]
+    _restaurant_external_id_uniq = models.Constraint(
+        'unique(location_id, external_id)',
+        'Цю зміну вже синхронізовано для цього закладу.',
+    )
 
     display_name = fields.Char(compute='_compute_display_name')
     location_id = fields.Many2one('venue.sales.location', string='Заклад', required=True, ondelete='cascade')

@@ -23,10 +23,10 @@ class PosRestaurant(models.Model):
     _name = 'venue.sales.location'
     _inherit = ['avatar.mixin', 'mail.thread']
     _description = 'Заклад (POS)'
-    _sql_constraints = [
-        ('connection_external_id_uniq', 'unique(connection_id, external_id)',
-         'Цей заклад уже зареєстровано для цього підключення.'),
-    ]
+    _connection_external_id_uniq = models.Constraint(
+        'unique(connection_id, external_id)',
+        'Цей заклад уже зареєстровано для цього підключення.',
+    )
 
     name = fields.Char(string='Назва', required=True)
     connection_id = fields.Many2one('venue.sales.connection', string='Підключення', required=True, ondelete='cascade')
