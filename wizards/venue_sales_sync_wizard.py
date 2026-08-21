@@ -16,7 +16,10 @@ class PosRestaurantSyncWizard(models.TransientModel):
 
     def action_sync(self):
         self.ensure_one()
-        connection = self.location_id.connection_id
+        # sudo(): group_venue_sales_user can trigger a sync but has no access to
+        # venue.sales.connection (holds provider credentials) — the connector needs
+        # to read login/server_url/password regardless of the calling user's rights.
+        connection = self.location_id.connection_id.sudo()
         connector_class = get_connector_class(connection.provider)
         try:
             with connector_class(connection) as connector:

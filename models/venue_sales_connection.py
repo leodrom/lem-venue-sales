@@ -14,7 +14,7 @@ class PosProviderConnection(models.Model):
         help="Який коннектор (див. connectors/registry.py) обробляє це підключення.",
     )
     server_url = fields.Char(string='Адреса сервера', required=True, help="напр. https://ojakhi-lviv-lem-station.syrve.online")
-    login = fields.Char(string='Логін', required=True)
-    password = fields.Char(string='Пароль', required=True)
+    login = fields.Char(string='Логін', required=True, groups='base.group_system')
+    password = fields.Char(string='Пароль', required=True, groups='base.group_system')
     active = fields.Boolean(string='Активне', default=True)
     location_ids = fields.One2many('venue.sales.location', 'connection_id', string='Заклади')

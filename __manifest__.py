@@ -17,6 +17,7 @@
     'application': True,
     'depends': ['base', 'mail'],
     'data': [
+        'security/venue_sales_security.xml',
         'security/ir.model.access.csv',
         'data/ir_cron.xml',
         'views/venue_sales_session_views.xml',

@@ -3,3 +3,7 @@ access_venue_sales_connection_system,venue.sales.connection.system,model_venue_s
 access_venue_sales_location_system,venue.sales.location.system,model_venue_sales_location,base.group_system,1,1,1,1
 access_venue_sales_session_system,venue.sales.session.system,model_venue_sales_session,base.group_system,1,1,1,1
 access_venue_sales_sync_wizard_system,venue.sales.sync.wizard.system,model_venue_sales_sync_wizard,base.group_system,1,1,1,1
+access_venue_sales_connection_user,venue.sales.connection.user,model_venue_sales_connection,group_venue_sales_user,1,0,0,0
+access_venue_sales_location_user,venue.sales.location.user,model_venue_sales_location,group_venue_sales_user,1,1,0,0
+access_venue_sales_session_user,venue.sales.session.user,model_venue_sales_session,group_venue_sales_user,1,1,1,0
+access_venue_sales_sync_wizard_user,venue.sales.sync.wizard.user,model_venue_sales_sync_wizard,group_venue_sales_user,1,1,1,1
