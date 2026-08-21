@@ -122,5 +122,6 @@
         <field name="res_model">venue.sales.session</field>
         <field name="view_mode">list,form,pivot</field>
         <field name="search_view_id" ref="view_venue_sales_session_search"/>
+        <field name="path">lem-venue-sales</field>
     </record>
 </odoo>

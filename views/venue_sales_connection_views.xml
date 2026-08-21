@@ -50,5 +50,6 @@
         <field name="name">Підключення POS</field>
         <field name="res_model">venue.sales.connection</field>
         <field name="view_mode">list,form</field>
+        <field name="path">lem-venue-sales-connections</field>
     </record>
 </odoo>
