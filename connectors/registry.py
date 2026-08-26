@@ -1,7 +1,9 @@
+from .poster import PosterConnector
 from .syrve import SyrveConnector
 
 CONNECTORS = {
     SyrveConnector.provider_code: SyrveConnector,
+    PosterConnector.provider_code: PosterConnector,
 }
 
 

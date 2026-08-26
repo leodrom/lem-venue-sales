@@ -46,6 +46,16 @@
                         <field name="auto_sync_hour" placeholder="Вимкнено"/>
                         <field name="last_auto_sync_date"/>
                     </group>
+                    <notebook>
+                        <page string="Каси">
+                            <field name="register_ids">
+                                <list editable="bottom">
+                                    <field name="name" width="150px"/>
+                                    <field name="is_fiscal" width="130px"/>
+                                </list>
+                            </field>
+                        </page>
+                    </notebook>
                 </sheet>
                 <chatter/>
             </form>

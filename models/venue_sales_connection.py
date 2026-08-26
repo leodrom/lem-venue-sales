@@ -9,15 +9,23 @@ class PosProviderConnection(models.Model):
 
     name = fields.Char(string='Назва', required=True)
     provider = fields.Selection(
-        [('syrve', 'Syrve')],
+        [('syrve', 'Syrve'), ('poster', 'Poster')],
         string='Провайдер',
         required=True,
         default='syrve',
         help="Який коннектор (див. connectors/registry.py) обробляє це підключення.",
     )
-    server_url = fields.Char(string='Адреса сервера', required=True, help="напр. https://ojakhi-lviv-lem-station.syrve.online")
-    login = fields.Char(string='Логін', required=True, groups='base.group_system')
-    password = fields.Char(string='Пароль', required=True, groups='base.group_system')
+    server_url = fields.Char(string='Адреса сервера', required=True,
+                              help="Syrve: напр. https://ojakhi-lviv-lem-station.syrve.online. "
+                                   "Poster: завжди https://joinposter.com.")
+    # Not required at the ORM level (unlike password) because Poster has no login
+    # concept at all — see the view, which hides this field entirely for provider
+    # Poster (and marks it required there only for Syrve).
+    login = fields.Char(string='Логін', groups='base.group_system', help="Логін Syrve.")
+    password = fields.Char(string='Пароль / Токен', required=True, groups='base.group_system',
+                            help="Syrve: пароль. Poster: авторизація тут відбувається за одним "
+                                 "ключем, без окремого логіна — вставте сюди повний токен доступу "
+                                 "(формат account_id:hash) зі сторінки Доступ → Інтеграції.")
     active = fields.Boolean(string='Активне', default=True)
     location_ids = fields.One2many('venue.sales.location', 'connection_id', string='Заклади')
 

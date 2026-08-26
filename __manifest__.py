@@ -10,8 +10,7 @@
 (Z-звіти) кожного провайдера через відповідний коннектор і зберігає їх
 у `venue.sales.session`, незалежно від того, який саме POS видав дані.
 
-Підтримувані провайдери: Syrve (legacy RMS API). Poster — заплановано,
-ще не реалізовано.
+Підтримувані провайдери: Syrve (legacy RMS API), Poster.
 """,
     'category': 'Accounting/Accounting',
     'application': True,

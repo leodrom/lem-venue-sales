@@ -40,6 +40,7 @@ class PosRestaurant(models.Model):
     active = fields.Boolean(string='Активний', default=True)
     session_ids = fields.One2many('venue.sales.session', 'location_id', string='Касові зміни')
     session_count = fields.Integer(string='Кількість змін', compute='_compute_session_count')
+    register_ids = fields.One2many('venue.sales.register', 'location_id', string='Каси')
 
     auto_sync_hour = fields.Selection(
         AUTO_SYNC_HOUR_SELECTION, string='Година автозавантаження', default='3',
@@ -60,6 +61,20 @@ class PosRestaurant(models.Model):
         counts = {restaurant.id: count for restaurant, count in groups}
         for rec in self:
             rec.session_count = counts.get(rec.id, 0)
+
+    def _get_or_create_register(self, name):
+        """Registers are discovered organically as sessions are synced, not
+        pre-configured — a never-before-seen `name` for this location gets a new
+        `venue.sales.register` defaulting to `is_fiscal=True` (a new register is
+        real sales data until a human says otherwise; defaulting the other way
+        would silently drop real revenue out of reports on first sight of it)."""
+        self.ensure_one()
+        if not name:
+            return self.env['venue.sales.register']
+        register = self.register_ids.filtered(lambda r: r.name == name)
+        if not register:
+            register = self.env['venue.sales.register'].create({'location_id': self.id, 'name': name})
+        return register
 
     def action_open_sync_wizard(self):
         self.ensure_one()

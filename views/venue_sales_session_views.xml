@@ -9,6 +9,10 @@
                 <field name="date_open" optional="hide" width="130px"/>
                 <field name="date_close" optional="hide" width="130px"/>
                 <field name="cash_reg_number" string="Каса" optional="show" width="70px"/>
+                <field name="is_fiscal_register" optional="hide" width="70px"/>
+                <field name="shift_state" widget="badge" optional="show" width="100px"
+                       decoration-info="shift_state == 'OPEN'"
+                       decoration-success="shift_state == 'CLOSED'"/>
                 <field name="status" widget="badge" optional="show" width="140px"
                        decoration-success="status == 'ACCEPTED'"
                        decoration-info="status == 'OPEN'"
@@ -42,8 +46,13 @@
                             <field name="session_number"/>
                             <field name="fiscal_number"/>
                             <field name="cash_reg_number"/>
+                            <field name="register_id"/>
+                            <field name="is_fiscal_register"/>
                         </group>
                         <group>
+                            <field name="shift_state" widget="badge"
+                                   decoration-info="shift_state == 'OPEN'"
+                                   decoration-success="shift_state == 'CLOSED'"/>
                             <field name="status" widget="badge"
                                    decoration-success="status == 'ACCEPTED'"
                                    decoration-info="status == 'OPEN'"
@@ -85,14 +94,25 @@
             <search>
                 <field name="location_id"/>
                 <field name="cash_reg_number" string="Каса"/>
+                <field name="shift_state"/>
                 <field name="status"/>
                 <field name="date"/>
 
-                <filter string="Каса 1001 (фіскальна)" name="filter_reg_1001" domain="[('cash_reg_number', '=', '1001')]"/>
-                <filter string="Каса 100 (адмінська)" name="filter_reg_100" domain="[('cash_reg_number', '=', '100')]"/>
+                <!-- Заклад filter buttons reference these 2 real locations by id — not
+                     driven by a dynamic list (Odoo's classic <search> can't loop over
+                     recordsets), so a 3rd location would need a 3rd line added here.
+                     Typing a name into the search bar above already works for any
+                     location without this list; these are just one-click shortcuts
+                     for the two that exist today. -->
+                <filter string="Оджахі" name="filter_location_ojakhi" domain="[('location_id', '=', 1)]"/>
+                <filter string="Італіана" name="filter_location_italiana" domain="[('location_id', '=', 28)]"/>
                 <separator/>
-                <filter string="Відкрита" name="filter_status_open" domain="[('status', '=', 'OPEN')]"/>
-                <filter string="Закрита" name="filter_status_closed" domain="[('status', '=', 'CLOSED')]"/>
+                <filter string="Фіскальні каси" name="filter_fiscal_only" domain="[('is_fiscal_register', '=', True)]"/>
+                <filter string="Службові каси" name="filter_service_only" domain="[('is_fiscal_register', '=', False)]"/>
+                <separator/>
+                <filter string="Відкрита" name="filter_shift_open" domain="[('shift_state', '=', 'OPEN')]"/>
+                <filter string="Закрита" name="filter_shift_closed" domain="[('shift_state', '=', 'CLOSED')]"/>
+                <separator/>
                 <filter string="Прийнята" name="filter_status_accepted" domain="[('status', '=', 'ACCEPTED')]"/>
                 <filter string="Не прийнята" name="filter_status_unaccepted" domain="[('status', '=', 'UNACCEPTED')]"/>
                 <filter string="Є попередження" name="filter_status_warnings" domain="[('status', '=', 'HASWARNINGS')]"/>
@@ -117,11 +137,46 @@
         </field>
     </record>
 
+    <record id="view_venue_sales_session_graph" model="ir.ui.view">
+        <field name="name">venue.sales.session.graph</field>
+        <field name="model">venue.sales.session</field>
+        <field name="arch" type="xml">
+            <!-- Bar per explicit request (line/area was the initial default — user asked
+                 for a bar chart instead). One measure only (total_sales) — never a second
+                 y-axis for receipts_count/avg_check, switch the measure instead.
+                 location_id as the series split: 2 locations is comfortably within
+                 "1-3 series, color alone is fine, direct-label" territory. Weekly
+                 interval, not daily — ~90 daily points would be unreadable. Line/pie
+                 still selectable from the view's own chart-type toggle in the UI. -->
+            <graph type="bar">
+                <field name="date" interval="week"/>
+                <field name="location_id"/>
+                <field name="total_sales" type="measure"/>
+            </graph>
+        </field>
+    </record>
+
     <record id="action_venue_sales_session" model="ir.actions.act_window">
         <field name="name">Касові зміни</field>
         <field name="res_model">venue.sales.session</field>
-        <field name="view_mode">list,form,pivot</field>
+        <field name="view_mode">list,form,pivot,graph</field>
         <field name="search_view_id" ref="view_venue_sales_session_search"/>
+        <!-- Removable default filter, not a hard domain: service registers (see
+             Заклад → Каси, venue.sales.register.is_fiscal) stay in the DB and are one
+             click away via "Службові каси" — this only changes what's shown by
+             default in reports, nothing is deleted or archived. -->
+        <field name="context">{'search_default_filter_fiscal_only': 1}</field>
         <field name="path">lem-venue-sales</field>
+    </record>
+
+    <record id="action_venue_sales_session_graph" model="ir.actions.act_window">
+        <field name="name">Графік продажів</field>
+        <field name="res_model">venue.sales.session</field>
+        <!-- Same model/views/search/context as action_venue_sales_session, just graph
+             first so this menu entry opens straight into the chart instead of the list. -->
+        <field name="view_mode">graph,pivot,list,form</field>
+        <field name="search_view_id" ref="view_venue_sales_session_search"/>
+        <field name="context">{'search_default_filter_fiscal_only': 1}</field>
+        <field name="path">lem-venue-sales-graph</field>
     </record>
 </odoo>

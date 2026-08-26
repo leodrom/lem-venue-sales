@@ -5,10 +5,20 @@ from odoo import api, fields, models
 
 _logger = logging.getLogger(__name__)
 
+# The universal open/closed state every provider shares — derived from date_close,
+# not from any provider's own status vocabulary (see shift_state below).
+SHIFT_STATE_SELECTION = [
+    ('OPEN', 'Відкрита'),
+    ('CLOSED', 'Закрита'),
+]
+
 # The 5 statuses Syrve's v2/cashshifts API is known to return (confirmed via
 # its own 409 error enum listing). Selection values aren't enforced by the
 # ORM on write, so an unknown future status from another provider just shows
-# untranslated instead of breaking the sync.
+# untranslated instead of breaking the sync. Only Syrve populates ACCEPTED/
+# UNACCEPTED/HASWARNINGS — Poster has no accounting-review workflow at all, so
+# it leaves this field empty rather than reusing it for its plain open/closed
+# state (that's what shift_state is for, universally).
 STATUS_SELECTION = [
     ('OPEN', 'Відкрита'),
     ('CLOSED', 'Закрита'),
@@ -38,7 +48,26 @@ class PosCashSession(models.Model):
     date_open = fields.Datetime(string='Відкрито')
     date_close = fields.Datetime(string='Закрито')
     date_accept = fields.Datetime(string='Прийнято')
-    status = fields.Selection(STATUS_SELECTION, string='Статус')
+    shift_state = fields.Selection(
+        SHIFT_STATE_SELECTION, string='Статус', compute='_compute_shift_state', store=True,
+        help="Відкрита/закрита — єдиний спільний знаменник для всіх провайдерів, "
+             "похідне від наявності дати закриття. Детальний статус прийняття "
+             "бухгалтерією (лише для тих провайдерів, де він є) — поле нижче.",
+    )
+    status = fields.Selection(
+        STATUS_SELECTION, string='Статус прийняття',
+        help="Детальний статус, як його розуміє конкретний провайдер (напр. Syrve "
+             "розрізняє прийняту/неприйняту бухгалтерією зміну) — не всі провайдери "
+             "мають цей рівень деталізації, тому може бути порожнім. Для спільного "
+             "відкрита/закрита між усіма провайдерами — поле 'Статус' вище.",
+    )
+    register_id = fields.Many2one('venue.sales.register', string='Каса', ondelete='restrict')
+    is_fiscal_register = fields.Boolean(
+        string='Фіскальна каса', related='register_id.is_fiscal', store=True,
+        help="Знято на самій касі (заклад → Каси) — зміна вважається службовою "
+             "(інкасація/адмін, не реальна точка продажу) і прихована зі звітів "
+             "за замовчуванням фільтром 'Фіскальні каси'.",
+    )
     receipts_count = fields.Integer(string='Чеків')
     sales_cash = fields.Monetary(string='Готівкою', currency_field='currency_id')
     sales_card = fields.Monetary(string='Карткою', currency_field='currency_id')
@@ -62,6 +91,15 @@ class PosCashSession(models.Model):
     def _compute_date(self):
         for rec in self:
             rec.date = rec.date_open.date() if rec.date_open else False
+
+    @api.depends('date_close')
+    def _compute_shift_state(self):
+        # Verified against all 264 real sessions (both providers) before relying on
+        # this: date_close empty <=> status == 'OPEN', with zero exceptions — a more
+        # reliable universal signal than re-interpreting each provider's own status
+        # strings, which don't share a common vocabulary (see STATUS_SELECTION).
+        for rec in self:
+            rec.shift_state = 'CLOSED' if rec.date_close else 'OPEN'
 
     @api.depends('total_sales', 'receipts_count')
     def _compute_avg_check(self):
@@ -101,12 +139,14 @@ class PosCashSession(models.Model):
         return len(sessions)
 
     def _upsert_session(self, restaurant, data):
+        register = restaurant._get_or_create_register(data.get('cash_reg_number'))
         vals = {
             'location_id': restaurant.id,
             'external_id': data['external_id'],
             'session_number': data.get('session_number'),
             'fiscal_number': data.get('fiscal_number'),
             'cash_reg_number': data.get('cash_reg_number'),
+            'register_id': register.id,
             'date_open': self._parse_provider_datetime(data.get('date_open')),
             'date_close': self._parse_provider_datetime(data.get('date_close')),
             'date_accept': self._parse_provider_datetime(data.get('date_accept')),
