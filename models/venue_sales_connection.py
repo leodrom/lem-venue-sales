@@ -16,7 +16,7 @@ class PosProviderConnection(models.Model):
         help="Який коннектор (див. connectors/registry.py) обробляє це підключення.",
     )
     server_url = fields.Char(string='Адреса сервера', required=True,
-                              help="Syrve: напр. https://ojakhi-lviv-lem-station.syrve.online. "
+                              help="Syrve: напр. https://your-restaurant.syrve.online. "
                                    "Poster: завжди https://joinposter.com.")
     # Not required at the ORM level (unlike password) because Poster has no login
     # concept at all — see the view, which hides this field entirely for provider
